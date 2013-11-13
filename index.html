@@ -9,37 +9,69 @@
     <p>Once it's encoded, you'll be able to share your message with anyone else who has the password.</p>
     <textarea id="message" rows="6" cols="60"></textarea>
     <br>
-    <button id="encrypt">Lock Down</button>
+    <button id="encrypt" style="color: red">Lock Down</button>
+    <br />
+    <button id="decrypt" style="color: green">Decrypt</button>
 
     <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
 
     <script>
       var encoder = {
         setMessage: function() {
-
+          this.message = document.getElementById("message").value;
         },
         getPassword: function() {
-
+          this.password = prompt("Input password: ");
         },
         setUrl: function() {
-
+          this.url = document.URL+"?url="+encodeURI(this.encrypt());
         },
         replaceMessageWithUrl: function () {
-
+          document.getElementById("message").value = this.url;
         },
         encrypt: function() {
-          cypher = CryptoJS.AES.encrypt(this.message, this.password)
+          cypher = CryptoJS.AES.encrypt(this.message, this.password);
+
           console.log("Verified: " +
-            CryptoJS.AES.decrypt(cypher, this.password).toString(CryptoJS.enc.Utf8))
+            CryptoJS.AES.decrypt(cypher, this.password).toString(CryptoJS.enc.Utf8));
           return cypher
         },
         protect: function() {
-          this.setMessage()
-          this.getPassword()
-          this.setUrl()
-          this.replaceMessageWithUrl()
+          this.setMessage();
+          this.getPassword();
+          this.setUrl();
+          this.replaceMessageWithUrl();
         }
       }
+
+      document.getElementById("encrypt").onclick=function(){
+        encoder.protect();
+      };
+
+      // Decrypt a message in the URL
+      document.getElementById("decrypt").onclick=function(){
+        // Split URL to pull out encoded url after index.html
+        var encrURL = document.URL.split("?url=")[1];
+
+        // If there is no encoded url after index, return from method and display message
+        if (encrURL === undefined){
+          document.getElementById("message").value = "No message is present in the html.  Please input an encrypted html to get the message.";
+          return;
+        }
+
+        // Get password from user for securit
+        var openPassword = prompt("Input password to read message: ");
+
+        // Decode the encoded URL
+        var decodedURL = decodeURI(encrURL);
+
+        // decrypt the decoded url, using the decoded url and password
+        var openMessage = CryptoJS.AES.decrypt(decodedURL, openPassword).toString(CryptoJS.enc.Utf8);
+
+        // Display the decrypted message
+        document.getElementById("message").value = openMessage;
+      };
+
     </script>
   </body>
 </html>
